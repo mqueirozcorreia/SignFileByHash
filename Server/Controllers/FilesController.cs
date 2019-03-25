@@ -63,7 +63,7 @@ namespace SignFile.Controllers
             CheckFileNameArgument(fileName);
 
             var file = FileProvider.GetFileInfo($"{FileService.FILES_DIRECTORY}/{fileName}");
-            Console.WriteLine($"Encontrou o arquivo {file.physicalPath}");
+            Console.WriteLine($"Encontrou o arquivo {file.PhysicalPath}");
 
             var destinyPDF = PDFCreator.CreateFromText(file.PhysicalPath);
             Console.WriteLine($"Gerou o PDF {destinyPDF}");

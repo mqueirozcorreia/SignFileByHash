@@ -19,7 +19,7 @@ namespace Server.Services
         private PdfStamper stamper;
         private PdfSignatureAppearance appearance;
         private string userName;
-        private const int csize = 2048;
+        private const int RESERVED_SPACE_SIGNATURE = 2048;
 
         public PDFSigner(byte[] Content, string UserName) : 
             this(new PdfReader(Content), UserName)
@@ -76,8 +76,9 @@ namespace Server.Services
             dic.Contact = appearance.Contact;
 
             appearance.CryptoDictionary = dic;
+
             Dictionary<PdfName, int> exclusionSizes = new Dictionary<PdfName, int>();
-            exclusionSizes.Add(PdfName.CONTENTS, (csize * 2) + 2);
+            exclusionSizes.Add(PdfName.CONTENTS, (RESERVED_SPACE_SIGNATURE * 2) + 2);
             appearance.PreClose(exclusionSizes);
 
             HashAlgorithm sha = new SHA256CryptoServiceProvider();
@@ -135,7 +136,7 @@ namespace Server.Services
 
         public byte[] SignPDFToMemory(byte[] pk)
         {
-            byte[] paddedSig = new byte[csize];
+            byte[] paddedSig = new byte[RESERVED_SPACE_SIGNATURE];
             System.Array.Copy(pk, 0, paddedSig, 0, pk.Length);
 
             PdfDictionary dic2 = new PdfDictionary();
