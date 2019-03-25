@@ -11,8 +11,12 @@ https://localhost:5001/api/Files/Sign/1.txt
 https://localhost:5001/api/Files/Sign/2.txt
 
 
-#Licenciamento
-Para ter informação de licencimaneot do iTextSharp [veja no site](https://itextpdf.com/en/how-buy)
+# Licenciamento
+Para ter informação de licenciamento do iTextSharp [veja no site](https://itextpdf.com/en/how-buy)
+
+Há versões de comunidade como 
+https://stackoverflow.com/a/2655113/3424212
+https://www.nuget.org/packages/iTextSharp-LGPL/
 
 # Inspirações:
 [Codigo Exemplo Stackoverflow](https://stackoverflow.com/a/7475985/3424212)
