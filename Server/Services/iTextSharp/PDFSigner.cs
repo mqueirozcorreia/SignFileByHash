@@ -5,6 +5,7 @@ using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 using iTextSharp.text;
+using iTextSharp.text.exceptions;
 using iTextSharp.text.pdf;
 using iTextSharp.text.pdf.parser;
 using iTextSharp.text.pdf.security;
@@ -12,7 +13,7 @@ using Org.BouncyCastle.Pkcs;
 
 namespace Server.Services.iTextSharp
 {
-    public class PDFSigner
+    public class PDFSigner : IDisposable
     {
         private PdfReader reader;
         private MemoryStream ms;
@@ -178,5 +179,28 @@ namespace Server.Services.iTextSharp
 
             File.WriteAllBytes(destinyPDFSigned, pdfInMemory);
         }
+
+        public bool IsValid(string fileName)
+        {
+            try
+            {
+                new PdfReader(fileName);
+                return true;
+            }
+            catch (InvalidPdfException)
+            {
+                return false;
+            }
+        }
+
+        public void Dispose()
+        {
+            if (reader != null)
+                reader.Dispose();
+            if (ms != null)
+                ms.Dispose();
+            if (stamper != null)
+                stamper.Dispose();
+       }
     }
 }
