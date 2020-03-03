@@ -40,6 +40,25 @@ namespace Server.Services
             userName = UserName;
         }
 
+        public static void RemoveSignatures(string src, string dest) 
+        {
+            using (var reader = new PdfReader(src))
+            {
+                var names = reader.AcroFields.GetSignatureNames();
+                using(var memStream = new MemoryStream())
+                {
+                    using (var stamper = new PdfStamper(reader, memStream, '\0', true))
+                    {
+                        foreach(var name in names)
+                            stamper.AcroFields.RemoveField(name);
+
+                        stamper.Close();
+                        File.WriteAllBytes(dest, memStream.ToArray());
+                    }
+                }
+            }
+        }
+
         private Stream getCertificate()
         {
             return File.OpenRead("wwwroot/mateus.pfx");
@@ -66,14 +85,8 @@ namespace Server.Services
             appearance.Layer2Text = buf.ToString();
             appearance.Acro6Layers = true;
             appearance.CertificationLevel = 0;
-            PdfSignature dic = new PdfSignature(PdfName.ADOBE_PPKLITE, PdfName.ADBE_PKCS7_DETACHED)
-            {
-                Date = new PdfDate(appearance.SignDate),
-                Name = userName
-            };
-            dic.Reason = appearance.Reason;
-            dic.Location = appearance.Location;
-            dic.Contact = appearance.Contact;
+            
+            PdfSignature dic = GeneratePdfSignature();
 
             appearance.CryptoDictionary = dic;
 
@@ -96,6 +109,19 @@ namespace Server.Services
                 hex.AppendFormat("{0:x2}", b);
 
             return hex.ToString();
+        }
+
+        private PdfSignature GeneratePdfSignature()
+        {
+            PdfSignature dic = new PdfSignature(PdfName.ADOBE_PPKLITE, PdfName.ADBE_PKCS7_DETACHED)
+            {
+                Date = new PdfDate(appearance.SignDate),
+                Name = userName
+            };
+            dic.Reason = appearance.Reason;
+            dic.Location = appearance.Location;
+            dic.Contact = appearance.Contact;
+            return dic;
         }
 
         public byte[] SignHash(string hexhash, string password)
