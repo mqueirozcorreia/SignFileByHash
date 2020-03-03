@@ -65,10 +65,10 @@ namespace SignFile.Controllers
             var file = FileProvider.GetFileInfo($"{FileService.FILES_DIRECTORY}/{fileName}");
             Console.WriteLine($"Encontrou o arquivo {file.PhysicalPath}");
 
-            var destinyPDF = PDFCreator.CreateFromText(file.PhysicalPath);
+            var destinyPDF = Server.Services.iTextSharp.PDFCreator.CreateFromText(file.PhysicalPath);
             Console.WriteLine($"Gerou o PDF {destinyPDF}");
 
-            var signer = new PDFSigner(destinyPDF,"Mateus");
+            var signer = new Server.Services.iTextSharp.PDFSigner(destinyPDF,"Mateus");
             var hash = signer.GenerateHash();
             Console.WriteLine($"Gerou o Hash do arquivo {hash}");
 
@@ -83,15 +83,15 @@ namespace SignFile.Controllers
         }
 
         // Sign api/SignPDF/1.txt
-        [HttpPost("SignPDF/{fileName}")]
-        public ActionResult<string> SignPDF(string fileName)
+        [HttpPost("SignPDFWithITextSharp/{fileName}")]
+        public ActionResult<string> SignPDFWithITextSharp(string fileName)
         {
             CheckFileNameArgument(fileName);
 
             var file = FileProvider.GetFileInfo($"{FileService.FILES_DIRECTORY}/{fileName}");
             Console.WriteLine($"Encontrou o arquivo {file.PhysicalPath}");
 
-            var signer = new PDFSigner(file.PhysicalPath,"Mateus");
+            var signer = new Server.Services.iTextSharp.PDFSigner(file.PhysicalPath,"Mateus");
             var hash = signer.GenerateHash();
             Console.WriteLine($"Gerou o Hash do arquivo {hash}");
 
@@ -101,6 +101,23 @@ namespace SignFile.Controllers
             var destinyPDFSigned = $"{file.PhysicalPath}.signed.pdf";
             signer.SignPDFToNewFile(new byte[] {}, destinyPDFSigned);
             Console.WriteLine($"Gerou o arquivo assinado em disco {destinyPDFSigned}");
+
+            return file.Name;
+        }
+
+        // Sign api/SignPDF/1.txt
+        [HttpPost("SignPDFWithPdfSharp/{fileName}")]
+        public ActionResult<string> SignPDFWithPdfSharp(string fileName)
+        {
+            CheckFileNameArgument(fileName);
+
+            var file = FileProvider.GetFileInfo($"{FileService.FILES_DIRECTORY}/{fileName}");
+            Console.WriteLine($"Encontrou o arquivo {file.PhysicalPath}");
+
+            var signer = new Server.Services.PdfSharp.PDFSigner(file.PhysicalPath,"Mateus");
+            var destinyPDFSigned = $"{file.PhysicalPath}.signed.pdf";
+            signer.Sign(destinyPDFSigned);
+            Console.WriteLine($"Gerou a assinatura {destinyPDFSigned.Length}");
 
             return file.Name;
         }
@@ -114,7 +131,7 @@ namespace SignFile.Controllers
             Console.WriteLine($"Encontrou o arquivo {file.PhysicalPath}");
 
             //var signer = new PDFSigner(file.PhysicalPath,"Mateus");
-            PDFSigner.RemoveSignatures(file.PhysicalPath, $"{file.PhysicalPath}.unsigned.pdf");
+            Server.Services.iTextSharp.PDFSigner.RemoveSignatures(file.PhysicalPath, $"{file.PhysicalPath}.unsigned.pdf");
             Console.WriteLine($"Limpou as assinaturas");
 
             return file.Name;

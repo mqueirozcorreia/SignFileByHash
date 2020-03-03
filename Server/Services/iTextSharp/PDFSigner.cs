@@ -10,7 +10,7 @@ using iTextSharp.text.pdf.parser;
 using iTextSharp.text.pdf.security;
 using Org.BouncyCastle.Pkcs;
 
-namespace Server.Services
+namespace Server.Services.iTextSharp
 {
     public class PDFSigner
     {

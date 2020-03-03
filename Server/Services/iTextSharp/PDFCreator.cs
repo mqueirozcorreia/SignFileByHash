@@ -2,7 +2,7 @@ using System.IO;
 using iTextSharp.text;
 using iTextSharp.text.pdf;
 
-namespace Server.Services
+namespace Server.Services.iTextSharp
 {
     public class PDFCreator
     {
