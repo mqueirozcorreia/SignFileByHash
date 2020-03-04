@@ -48,7 +48,29 @@ namespace SignFile.Controllers
             }
         }
 
-        // Sign api/SignPDF/1.txt
+        [HttpPost("SignPDF/{fileName}")]
+        public ActionResult<string> SignPDF(string fileName)
+        {
+            FilesController.CheckFileNameArgument(fileName);
+
+            var file = FileProvider.GetFileInfo($"{FileService.FILES_DIRECTORY}/{fileName}");
+            Console.WriteLine($"Encontrou o arquivo {file.PhysicalPath}");
+
+            var signer = new Server.Services.iTextSharp.PDFSigner(file.PhysicalPath,"Mateus");
+            var hash = signer.GenerateHash();
+            Console.WriteLine($"Gerou o Hash do arquivo {hash}");
+
+            var signBytes = signer.SignHash(hash, "");
+            Console.WriteLine($"Gerou a assinatura {signBytes.Length}");
+
+            var destinyPDFSigned = $"{file.PhysicalPath}.signed.pdf";
+            signer.SignPDFToNewFile(new byte[] {}, destinyPDFSigned);
+            Console.WriteLine($"Gerou o arquivo assinado em disco {destinyPDFSigned}");
+
+            return file.Name;
+        }
+
+        // Sign api/RemovePDFSignatures/1.pdf
         [HttpPost("RemovePDFSignatures/{fileName}")]
         public ActionResult<string> RemovePDFSignatures(string fileName)
         {
@@ -63,7 +85,7 @@ namespace SignFile.Controllers
             return file.Name;
         }
         
-        // IsValid api/SignPDF/1.pdf
+        // IsValid api/IsValid/1.pdf
         [HttpPost("IsValid/{fileName}")]
         public ActionResult<string> IsValid(string fileName)
         {
